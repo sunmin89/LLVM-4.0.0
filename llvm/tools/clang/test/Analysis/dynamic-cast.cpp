@@ -1,4 +1,5 @@
 // RUN: %clang_cc1 -triple i386-apple-darwin10 -analyze -analyzer-checker=core,debug.ExprInspection -analyzer-config ipa=none -verify %s
+//#include <typeinfo>
 
 void clang_analyzer_eval(bool);
 
@@ -14,6 +15,36 @@ public:
 class C : public A{};
 
 class BB: public B{};
+
+int testDynCastCppPrimerPtr(){
+  A a0;
+  B *b0 = dynamic_cast<B*>(&a0);
+  
+  if(b0){
+    return 1;
+  }
+  else{
+    return 0;
+  }
+ 
+}
+
+void testDynCastCppPrimerRef(){
+  A a0;
+  const B &b0 = dynamic_cast<const B&>(a0);
+}
+
+/*
+int testDynCastCppPrimerRef1(){
+  A a0;
+  try{
+    const B &b0 = dynamic_cast<const B&>(a0);
+    return 1;
+  }catch(std::bad_cast){
+    return -1;
+  }
+}
+*/
 
 // A lot of the tests below have the if statement in them, which forces the
 // analyzer to explore both path - when the result is 0 and not. This makes
